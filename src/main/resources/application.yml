@@ -1,0 +1,34 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: restart-file-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/restart_file?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: treasure
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 100MB
+
+mybatis:
+  mapper-locations: classpath:mapper/xml/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+jwt:
+  public-key-path: ${JWT_PUBLIC_KEY_PATH}
+
+file:
+  upload-path: ${FILE_STORAGE_PATH:/opt/restart-file}/${file.upload-dir}
+  upload-dir: uploads/
+
+logging:
+  level:
+    com.treasure.restart.file.mapper: debug

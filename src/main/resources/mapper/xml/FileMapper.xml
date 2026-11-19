@@ -1,0 +1,69 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.treasure.restart.file.mapper.FileMapper">
+
+    <!-- 新增文件 -->
+    <insert id="insert"
+            parameterType="com.treasure.restart.file.entity.FileInfo"
+            useGeneratedKeys="true"
+            keyProperty="id">
+
+        INSERT INTO file_info (
+        owner_id,
+        original_name,
+        stored_name,
+        file_path,
+        file_type,
+        file_size
+        )
+        VALUES (
+        #{ownerId},
+        #{originalName},
+        #{storedName},
+        #{filePath},
+        #{fileType},
+        #{fileSize}
+        )
+
+    </insert>
+
+
+    <!-- 根据ID和用户ID查询 -->
+    <select id="selectByIdAndOwner"
+            resultType="com.treasure.restart.file.entity.FileInfo">
+
+        SELECT *
+        FROM file_info
+        WHERE id = #{id}
+        AND owner_id = #{ownerId}
+        LIMIT 1
+
+    </select>
+
+
+    <!-- 查询当前用户的文件 -->
+    <select id="selectAllByOwner"
+            resultType="com.treasure.restart.file.entity.FileInfo">
+
+        SELECT *
+        FROM file_info
+        WHERE owner_id = #{ownerId}
+        ORDER BY created_at DESC
+
+    </select>
+
+
+    <!-- 删除文件记录 -->
+    <delete id="deleteByIdAndOwner">
+
+        DELETE FROM file_info
+        WHERE id = #{id}
+        AND owner_id = #{ownerId}
+
+    </delete>
+
+</mapper>
