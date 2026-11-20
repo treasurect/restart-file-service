@@ -6,10 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 @MapperScan("com.treasure.restart.file.mapper")
-public class FileServiceApplication {
+public class RestartFileServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(FileServiceApplication.class, args);
+        SpringApplication.run(RestartFileServiceApplication.class, args);
     }
 
 }
