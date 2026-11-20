@@ -16,15 +16,15 @@ REMOTE="${SERVER_USER}@${SERVER_HOST}"
 REMOTE_DIR="/opt/restart-file"
 REMOTE_JAR="${REMOTE_DIR}/restart-file-service.jar"
 
-SERVICE_NAME="restart-file-service"
-SERVICE_FILE="/etc/systemd/system/restart-file-service.service"
+SERVICE_NAME="restart-file"
+SERVICE_FILE="/etc/systemd/system/restart-file.service"
 
 SERVER_ENV_FILE="/etc/restart-server/restart-server.env"
 
 cd "$PROJECT_DIR"
 
 echo "================================"
-echo "开始发布 restart-file-service"
+echo "开始发布 restart-file"
 echo "================================"
 
 # ==============================
@@ -77,8 +77,7 @@ echo "准备服务器部署目录..."
 ssh "$REMOTE" "
     sudo mkdir -p '$REMOTE_DIR'
     sudo mkdir -p '$REMOTE_DIR/uploads'
-    sudo chown '$SERVER_USER:$SERVER_USER' '$REMOTE_DIR'
-    sudo chown '$SERVER_USER:$SERVER_USER' '$REMOTE_DIR/uploads'
+    sudo chown -R '$SERVER_USER:$SERVER_USER' '$REMOTE_DIR'
 "
 
 # ==============================
@@ -97,7 +96,7 @@ echo "JAR 上传成功"
 
 echo "配置 systemd 服务..."
 
-ssh "$REMOTE" 'sudo tee /etc/systemd/system/restart-file-service.service > /dev/null << "EOF"
+ssh "$REMOTE" "sudo tee '$SERVICE_FILE' > /dev/null << 'EOF'
 [Unit]
 Description=Restart File Service
 After=network.target
@@ -119,20 +118,20 @@ WantedBy=multi-user.target
 EOF
 
 sudo systemctl daemon-reload
-sudo systemctl enable restart-file-service
-'
+sudo systemctl enable '$SERVICE_NAME'
+"
 
 # ==============================
 # 7. 重启服务
 # ==============================
 
-echo "正在重启 restart-file-service..."
+echo "正在重启 $SERVICE_NAME..."
 
-if ! ssh "$REMOTE" "sudo systemctl restart $SERVICE_NAME"; then
+if ! ssh "$REMOTE" "sudo systemctl restart '$SERVICE_NAME'"; then
     echo "服务重启命令执行失败"
 
     ssh "$REMOTE" "
-        sudo journalctl -u $SERVICE_NAME -n 80 --no-pager
+        sudo journalctl -u '$SERVICE_NAME' -n 80 --no-pager
     "
 
     exit 1
@@ -146,15 +145,15 @@ echo "检查服务状态..."
 
 sleep 3
 
-if ! ssh "$REMOTE" "sudo systemctl is-active --quiet $SERVICE_NAME"; then
+if ! ssh "$REMOTE" "sudo systemctl is-active --quiet '$SERVICE_NAME'"; then
 
     echo "================================"
-    echo "restart-file-service 启动失败"
+    echo "$SERVICE_NAME 启动失败"
     echo "================================"
 
     ssh "$REMOTE" "
-        sudo systemctl status $SERVICE_NAME --no-pager
-        sudo journalctl -u $SERVICE_NAME -n 80 --no-pager
+        sudo systemctl status '$SERVICE_NAME' --no-pager
+        sudo journalctl -u '$SERVICE_NAME' -n 80 --no-pager
     "
 
     exit 1
@@ -165,13 +164,11 @@ fi
 # ==============================
 
 echo "================================"
-echo "restart-file-service 发布成功"
+echo "$SERVICE_NAME 发布成功"
 echo "================================"
 
 ssh "$REMOTE" "
-    sudo systemctl status $SERVICE_NAME --no-pager
-#
+    sudo systemctl status '$SERVICE_NAME' --no-pager
 #    echo '========== 最近启动日志 =========='
-#
-#    sudo journalctl -u $SERVICE_NAME -n 30 --no-pager
+#    sudo journalctl -u '$SERVICE_NAME' -n 30 --no-pager
 "
